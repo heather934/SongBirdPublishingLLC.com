@@ -1,0 +1,14 @@
+---
+layout: base.njk
+---
+<article class="article">
+  <div class="wrap wrap-narrow">
+    <span class="eyebrow">Notes from the nest</span>
+    <h2 class="article-title">{{ title }}</h2>
+    <p class="article-meta"><time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time></p>
+    <div class="nail-rule"><i></i></div>
+    {% if standfirst %}<p class="lede">{{ standfirst }}</p>{% endif %}
+    <div class="prose">{{ content | safe }}</div>
+    <p class="back"><a href="/#notes">&larr; All notes</a></p>
+  </div>
+</article>
