@@ -2,6 +2,7 @@ backend:
   name: github
   repo: heather934/SongBirdPublishingLLC.com
   branch: main
+  base_url: https://songbird-cms-auth.h-m-ward1846.workers.dev
 
 media_folder: src/assets/uploads
 public_folder: /assets/uploads

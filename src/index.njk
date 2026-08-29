@@ -5,6 +5,9 @@ layout: base.njk
   <div class="wrap">
     <h1>{{ site.title }}</h1>
     <img class="hero-logo" src="/assets/logo.png" alt="{{ site.title }}: a songbird formed from a treble clef, nesting in a bed of nails.">
+    {% if site.submissions.open %}
+    <a class="hero-badge" href="#submissions"><span class="dot"></span>{{ site.submissions.heading }}</a>
+    {% endif %}
     <p class="hero-line">{{ site.hero.line }}</p>
     <p class="hero-sub">{{ site.hero.sub }}</p>
     <div class="hero-cta">
