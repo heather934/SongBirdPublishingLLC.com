@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if title %}{{ title }} — {{ site.title }}{% else %}{{ site.title }} — independent publishing for authors who own their work{% endif %}</title>
+<meta name="description" content="{{ standfirst or site.meta_description }}">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="/#top"><img src="/assets/mark.png" alt=""><span>Song&nbsp;Bird Publishing</span></a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navlinks">Menu</button>
+    <nav class="nav-links" id="navlinks">
+      <a href="/#about">About</a>
+      <a href="/#services">Services</a>
+      <a href="/#authors">Authors</a>
+      <a href="/#submissions">Submissions</a>
+      <a href="/#notes">Notes</a>
+      <a href="/#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+{{ content | safe }}
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <img src="/assets/mark.png" alt="{{ site.title }}">
+    <div>
+      <p class="foot-name">{{ site.legal_name }}</p>
+      <p>© <span id="yr">2026</span> {{ site.legal_name }}. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+var btn = document.querySelector('.nav-toggle'), links = document.getElementById('navlinks');
+btn.addEventListener('click', function(){
+  var open = links.classList.toggle('open');
+  btn.setAttribute('aria-expanded', open);
+  btn.textContent = open ? 'Close' : 'Menu';
+});
+links.addEventListener('click', function(e){
+  if(e.target.tagName === 'A'){ links.classList.remove('open'); btn.setAttribute('aria-expanded','false'); btn.textContent='Menu'; }
+});
+
+var io = new IntersectionObserver(function(es){
+  es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+}, {rootMargin:'0px 0px -12% 0px'});
+document.querySelectorAll('.rev').forEach(function(el){ io.observe(el); });
+
+var cf = document.getElementById('contact-form');
+if (cf && !cf.getAttribute('action')) {
+  cf.addEventListener('submit', function(e){
+    e.preventDefault();
+    var v = function(id){ return (document.getElementById(id).value || '').trim(); };
+    var body = 'Name: ' + v('f-name') + '\nEmail: ' + v('f-email') + '\n\n' + v('f-msg');
+    window.location.href = 'mailto:{{ site.contact.general_email }}?subject=' +
+      encodeURIComponent(v('f-topic')) + '&body=' + encodeURIComponent(body);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+---
+layout: base.njk
+---
+<section class="hero">
+  <div class="wrap">
+    <h1>{{ site.title }}</h1>
+    <img class="hero-logo" src="/assets/logo.png" alt="{{ site.title }}: a songbird formed from a treble clef, nesting in a bed of nails.">
+    <p class="hero-line">{{ site.hero.line }}</p>
+    <p class="hero-sub">{{ site.hero.sub }}</p>
+    <div class="hero-cta">
+      <a class="btn btn-solid" href="#submissions">{{ site.hero.primary_label }}</a>
+      <a class="btn btn-ghost" href="#services">{{ site.hero.secondary_label }}</a>
+    </div>
+    <p class="hero-meta">{{ site.legal_name }}</p>
+  </div>
+</section>
+
+<section id="about" class="band-marble">
+  <div class="wrap">
+    <div class="about-grid rev">
+      <div>
+        <span class="eyebrow">{{ site.about.eyebrow }}</span>
+        <h2>{{ site.about.heading }}</h2>
+      </div>
+      <div>
+        <p class="lede">{{ site.about.lede }}</p>
+        {{ site.about.body | paragraphs | safe }}
+        {% if site.about.pull_quote %}<p class="pull">{{ site.about.pull_quote }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="rev">
+      <span class="eyebrow">Catalog of services</span>
+      <h2>{{ site.services_heading }}</h2>
+      <div class="nail-rule"><i></i></div>
+    </div>
+    <div class="cards rev">
+      {% for s in site.services %}
+      <div class="card">
+        <span class="n">{{ s.label | upper }}</span>
+        <h3>{{ s.title }}</h3>
+        <p>{{ s.body }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="authors" class="band-marble">
+  <div class="wrap">
+    <div class="rev">
+      <span class="eyebrow">Our authors</span>
+      <h2>{{ site.authors_heading }}</h2>
+      <div class="nail-rule"><i></i></div>
+    </div>
+    <div class="authors rev">
+      {% for a in collections.authorList %}
+      <div class="author">
+        {% if a.data.photo %}
+          <img class="avatar avatar-photo" src="{{ a.data.photo }}" alt="{{ a.data.name }}">
+        {% else %}
+          <div class="avatar" aria-hidden="true">{{ a.data.name | initial }}</div>
+        {% endif %}
+        <h3>{{ a.data.name }}</h3>
+        {% if a.data.genre %}<p class="role">{{ a.data.genre }}</p>{% endif %}
+        <div class="author-bio">{{ a.templateContent | safe }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="submissions" class="band-ink on-ink">
+  <div class="wrap">
+    <div class="rev">
+      <span class="eyebrow">Submissions</span>
+      <h2>{{ site.submissions.heading }}</h2>
+      <div class="nail-rule"><i></i></div>
+    </div>
+    {% if site.submissions.open %}
+    <div class="sub-grid rev">
+      <div>
+        <h3 class="sub-h">What to send</h3>
+        <ul class="guides">
+          {% for g in site.submissions.guidelines %}<li>{{ g }}</li>{% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h3 class="sub-h">How it works</h3>
+        <ol class="steps">
+          {% for st in site.submissions.steps %}
+          <li><strong>{{ st.title }}</strong><p>{{ st.body }}</p></li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+    {% else %}
+    <p class="lede rev" style="max-width:44ch;color:#C3CBD6">{{ site.submissions.closed_message }}</p>
+    {% endif %}
+  </div>
+</section>
+
+<section id="notes">
+  <div class="wrap">
+    <div class="rev">
+      <span class="eyebrow">{{ site.notes_eyebrow }}</span>
+      <h2>{{ site.notes_heading }}</h2>
+      <div class="nail-rule"><i></i></div>
+    </div>
+    <div class="posts rev">
+      {% for p in collections.postList %}
+      {% if loop.index <= 3 %}
+      <a class="post" href="{{ p.url }}">
+        <time datetime="{{ p.date | isoDate }}">{{ p.date | readableDate }}</time>
+        <h3>{{ p.data.title }}</h3>
+        <p>{{ p.data.standfirst }}</p>
+      </a>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="band-marble">
+  <div class="wrap">
+    <div class="rev">
+      <span class="eyebrow">Contact</span>
+      <h2>{{ site.contact.heading }}</h2>
+      <div class="nail-rule"><i></i></div>
+    </div>
+    <div class="contact-grid rev">
+      <div>
+        <form id="contact-form" {% if site.contact.form_endpoint %}action="{{ site.contact.form_endpoint }}" method="POST"{% endif %}>
+          <label for="f-name">Your name</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required>
+          <label for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" autocomplete="email" required>
+          <label for="f-topic">What's this about</label>
+          <select id="f-topic" name="topic">
+            <option>A manuscript submission</option>
+            <option>Editing, design, or production</option>
+            <option>Author coaching</option>
+            <option>Something else</option>
+          </select>
+          <label for="f-msg">Message</label>
+          <textarea id="f-msg" name="message" required></textarea>
+          <button class="btn btn-solid" type="submit">Send message</button>
+        </form>
+        {% if not site.contact.form_endpoint %}
+        <p class="form-note">Opens your email app with the message filled in. Paste a form-service address into <em>Form endpoint</em> in the CMS to receive these as real emails instead.</p>
+        {% endif %}
+      </div>
+      <div>
+        <div class="detail"><span class="k">Submissions</span><span class="v">{{ site.contact.submissions_email }}</span></div>
+        <div class="detail"><span class="k">General enquiries</span><span class="v">{{ site.contact.general_email }}</span></div>
+        <div class="detail"><span class="k">Response time</span><span class="v">{{ site.contact.response_time }}</span></div>
+        <div class="nail-rule rule-gap"><i></i></div>
+        <p class="contact-note">{{ site.contact.note }}</p>
+      </div>
+    </div>
+  </div>
+</section>
