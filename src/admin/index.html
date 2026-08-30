@@ -6,8 +6,420 @@
 <meta name="robots" content="noindex">
 <title>Song Bird Publishing — site editor</title>
 <link rel="icon" type="image/png" href="/assets/favicon.png">
+<style>
+  :root{
+    --ink:#14263F; --blue:#1B4B93; --parchment:#EDE7DC; --marble:#F8F6F2;
+    --olive:#5C6E42; --pewter:#7A756E; --body:#25313F; --danger:#9C3B3B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--parchment);color:var(--body);
+    font-family:"Public Sans",system-ui,-apple-system,sans-serif;line-height:1.5}
+  header{background:var(--ink);color:#F4F1EA;padding:1rem 1.5rem;display:flex;
+    align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  header h1{font-size:1.05rem;margin:0;font-weight:600}
+  header .who{font-size:.8rem;color:#C3CBD6}
+  main{max-width:840px;margin:0 auto;padding:1.5rem}
+  nav.tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+  nav.tabs button{background:var(--marble);border:1px solid rgba(20,38,63,.15);
+    border-radius:4px;padding:.55rem 1rem;font-size:.85rem;cursor:pointer;color:var(--ink)}
+  nav.tabs button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+  section.panel{display:none}
+  section.panel.active{display:block}
+  fieldset{border:1px solid rgba(20,38,63,.15);border-radius:6px;padding:1rem 1.1rem;
+    margin:0 0 1.25rem;background:var(--marble)}
+  legend{font-weight:600;padding:0 .4rem;color:var(--ink)}
+  label{display:block;font-size:.78rem;font-weight:600;letter-spacing:.02em;
+    color:var(--pewter);margin:.7rem 0 .25rem;text-transform:uppercase}
+  input[type=text],input[type=email],input[type=date],input[type=number],
+  input[type=url],textarea{width:100%;padding:.55rem .65rem;border:1px solid rgba(20,38,63,.2);
+    border-radius:4px;font-family:inherit;font-size:.92rem;background:#fff;color:var(--body)}
+  textarea{min-height:5rem;resize:vertical}
+  .row{display:flex;gap:.75rem;align-items:center}
+  .row label{margin:0}
+  .check{display:flex;align-items:center;gap:.5rem;margin:.7rem 0}
+  .check input{width:auto}
+  .item{border:1px dashed rgba(20,38,63,.25);border-radius:5px;padding:.75rem;margin:.6rem 0;position:relative}
+  .item button.remove{position:absolute;top:.5rem;right:.5rem;background:none;border:none;
+    color:var(--danger);cursor:pointer;font-size:.8rem}
+  .btn{display:inline-block;font-weight:600;font-size:.85rem;padding:.6rem 1.1rem;
+    border-radius:4px;border:1.5px solid var(--blue);background:var(--blue);color:#fff;
+    cursor:pointer}
+  .btn.ghost{background:transparent;color:var(--blue)}
+  .btn.danger{background:var(--danger);border-color:var(--danger)}
+  .btn.small{padding:.35rem .7rem;font-size:.78rem}
+  .list-row{display:flex;justify-content:space-between;align-items:center;
+    padding:.6rem .8rem;border:1px solid rgba(20,38,63,.12);border-radius:5px;
+    margin-bottom:.5rem;background:var(--marble)}
+  .list-row .meta{font-size:.8rem;color:var(--pewter)}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+  .status{font-size:.85rem;padding:.6rem .8rem;border-radius:4px;margin-bottom:1rem}
+  .status.ok{background:#E4EDDA;color:#3C4F2A}
+  .status.err{background:#F5DEDE;color:#7A2222}
+  .hint{font-size:.78rem;color:var(--pewter);margin-top:.2rem}
+  .hidden{display:none}
+</style>
 </head>
 <body>
-<script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js" type="module"></script>
+<header>
+  <h1>Song Bird Publishing — Site Editor</h1>
+  <span class="who" id="who">Loading…</span>
+</header>
+<main>
+  <div id="status" class="status hidden"></div>
+  <nav class="tabs">
+    <button data-tab="content" class="active">Page Content</button>
+    <button data-tab="authors">Authors</button>
+    <button data-tab="notes">Notes</button>
+  </nav>
+
+  <section id="panel-content" class="panel active">
+    <div id="site-form"></div>
+    <button class="btn" id="save-site">Save page content</button>
+  </section>
+
+  <section id="panel-authors" class="panel">
+    <div class="toolbar">
+      <strong>Authors</strong>
+      <button class="btn small" id="new-author">+ New author</button>
+    </div>
+    <div id="authors-list"></div>
+    <div id="author-editor"></div>
+  </section>
+
+  <section id="panel-notes" class="panel">
+    <div class="toolbar">
+      <strong>Notes</strong>
+      <button class="btn small" id="new-note">+ New note</button>
+    </div>
+    <div id="notes-list"></div>
+    <div id="note-editor"></div>
+  </section>
+</main>
+
+<script>
+const $ = (sel, el = document) => el.querySelector(sel);
+const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
+
+function setStatus(msg, isError) {
+  const el = $('#status');
+  el.textContent = msg;
+  el.className = 'status ' + (isError ? 'err' : 'ok');
+  el.classList.remove('hidden');
+  if (!isError) setTimeout(() => el.classList.add('hidden'), 3500);
+}
+
+async function api(path, opts) {
+  const res = await fetch('/api/admin' + path, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', ...(opts && opts.headers) },
+  });
+  let body;
+  try { body = await res.json(); } catch { body = null; }
+  if (!res.ok) throw new Error((body && body.error) || ('Request failed (' + res.status + ')'));
+  return body;
+}
+
+// ---------------------------------------------------------------- Tabs
+
+$$('nav.tabs button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    $$('nav.tabs button').forEach((b) => b.classList.remove('active'));
+    $$('section.panel').forEach((p) => p.classList.remove('active'));
+    btn.classList.add('active');
+    $('#panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// -------------------------------------------------------------- Who am I
+
+api('/').then((d) => { $('#who').textContent = 'Signed in as ' + d.email; })
+  .catch((e) => { $('#who').textContent = 'Not signed in'; setStatus(e.message, true); });
+
+// ------------------------------------------------------------ Page content
+
+const SITE_SCHEMA = [
+  { group: 'Site', fields: [
+    ['title', 'Site name', 'text'],
+    ['legal_name', 'Legal name', 'text'],
+    ['meta_description', 'Search-result description', 'textarea'],
+  ]},
+  { group: 'Top of the page', prefix: 'hero', fields: [
+    ['line', 'Headline', 'text'],
+    ['sub', 'Paragraph under the headline', 'textarea'],
+    ['primary_label', 'Main button text', 'text'],
+    ['secondary_label', 'Second button text', 'text'],
+  ]},
+  { group: 'About section', prefix: 'about', fields: [
+    ['eyebrow', 'Small label above the heading', 'text'],
+    ['heading', 'Heading', 'text'],
+    ['lede', 'Opening line', 'textarea'],
+    ['body', 'Body (leave a blank line between paragraphs)', 'textarea'],
+    ['pull_quote', 'Pull quote (leave empty to hide it)', 'textarea'],
+  ]},
+  { group: 'Services heading', fields: [['services_heading', 'Services heading', 'text']] },
+  { group: 'Authors heading', fields: [['authors_heading', 'Authors heading', 'text']] },
+  { group: 'Submissions', prefix: 'submissions', fields: [
+    ['heading', 'Heading', 'text'],
+    ['open', 'Open for submissions', 'checkbox'],
+    ['closed_message', 'Closed message', 'textarea'],
+  ]},
+  { group: 'Notes section', fields: [
+    ['notes_eyebrow', 'Small label', 'text'],
+    ['notes_heading', 'Heading', 'text'],
+  ]},
+  { group: 'Contact', prefix: 'contact', fields: [
+    ['heading', 'Heading', 'text'],
+    ['submissions_email', 'Submissions email', 'text'],
+    ['general_email', 'General email', 'text'],
+    ['response_time', 'Response time', 'text'],
+    ['note', 'Note beside the form', 'textarea'],
+    ['form_endpoint', 'Form endpoint (Formspree/Tally URL, blank = mail app)', 'text'],
+  ]},
+];
+
+let siteData = null;
+let siteSha = null;
+
+function getPath(obj, prefix, key) {
+  return prefix ? (obj[prefix] || {})[key] : obj[key];
+}
+function setPath(obj, prefix, key, val) {
+  if (prefix) { obj[prefix] = obj[prefix] || {}; obj[prefix][key] = val; }
+  else obj[key] = val;
+}
+
+function fieldInput(prefix, key, label, type) {
+  const id = 'f_' + (prefix ? prefix + '_' : '') + key;
+  if (type === 'checkbox') {
+    return `<div class="check"><input type="checkbox" id="${id}" data-prefix="${prefix||''}" data-key="${key}"><label for="${id}" style="text-transform:none;font-weight:500">${label}</label></div>`;
+  }
+  const tag = type === 'textarea' ? 'textarea' : 'input';
+  const typeAttr = tag === 'input' ? ` type="text"` : '';
+  return `<label for="${id}">${label}</label><${tag} id="${id}" data-prefix="${prefix||''}" data-key="${key}"${typeAttr}></${tag}>`;
+}
+
+function renderSite() {
+  const html = SITE_SCHEMA.map((g) => `
+    <fieldset><legend>${g.group}</legend>
+      ${g.fields.map(([k, label, type]) => fieldInput(g.prefix, k, label, type)).join('')}
+      ${g.group === 'Services heading' ? '<div id="services-list"></div><button type="button" class="btn small ghost" id="add-service">+ Add service</button>' : ''}
+      ${g.group === 'Submissions' ? '<label>What to send</label><div id="guidelines-list"></div><button type="button" class="btn small ghost" id="add-guideline">+ Add item</button><label style="margin-top:1rem">How it works</label><div id="steps-list"></div><button type="button" class="btn small ghost" id="add-step">+ Add step</button>' : ''}
+    </fieldset>`).join('');
+  $('#site-form').innerHTML = html;
+
+  $$('#site-form input, #site-form textarea').forEach((el) => {
+    const { prefix, key } = el.dataset;
+    const val = getPath(siteData, prefix, key);
+    if (el.type === 'checkbox') el.checked = !!val;
+    else el.value = val ?? '';
+  });
+
+  renderList('services-list', siteData.services || [], [['label','Label'],['title','Title'],['body','Description']], 'textarea:body');
+  renderList('guidelines-list', siteData.submissions.guidelines || [], null);
+  renderList('steps-list', siteData.submissions.steps || [], [['title','Title'],['body','Description']], 'textarea:body');
+
+  $('#add-service').onclick = () => { siteData.services.push({ label: '', title: '', body: '' }); renderSite(); };
+  $('#add-guideline').onclick = () => { siteData.submissions.guidelines.push(''); renderSite(); };
+  $('#add-step').onclick = () => { siteData.submissions.steps.push({ title: '', body: '' }); renderSite(); };
+}
+
+function renderList(containerId, arr, fieldsSpec, textareaKey) {
+  const el = $('#' + containerId);
+  el.innerHTML = arr.map((item, i) => {
+    if (!fieldsSpec) {
+      return `<div class="item" data-i="${i}"><button type="button" class="remove" data-list="${containerId}" data-i="${i}">remove</button>
+        <input type="text" data-list="${containerId}" data-i="${i}" value="${(item||'').replace(/"/g,'&quot;')}"></div>`;
+    }
+    return `<div class="item" data-i="${i}"><button type="button" class="remove" data-list="${containerId}" data-i="${i}">remove</button>
+      ${fieldsSpec.map(([k,label]) => {
+        const isTa = textareaKey === 'textarea:' + k;
+        const tag = isTa ? 'textarea' : 'input';
+        const typeAttr = isTa ? '' : ' type="text"';
+        return `<label>${label}</label><${tag} data-list="${containerId}" data-i="${i}" data-key="${k}"${typeAttr}>${isTa ? (item[k]||'') : ''}</${tag}>${isTa ? '' : ''}`;
+      }).join('')}
+      </div>`;
+  }).join('') || '<p class="hint">Nothing here yet.</p>';
+
+  if (fieldsSpec) {
+    $$(`#${containerId} input[data-key], #${containerId} textarea[data-key]`).forEach((inp) => {
+      if (inp.tagName === 'INPUT') inp.value = arr[+inp.dataset.i][inp.dataset.key] || '';
+    });
+  }
+
+  $$(`#${containerId} .remove`).forEach((btn) => {
+    btn.onclick = () => { arr.splice(+btn.dataset.i, 1); renderSite(); };
+  });
+}
+
+function collectSiteForm() {
+  $$('#site-form input, #site-form textarea').forEach((el) => {
+    const { prefix, key } = el.dataset;
+    if (!key) return;
+    const val = el.type === 'checkbox' ? el.checked : el.value;
+    setPath(siteData, prefix, key, val);
+  });
+  $$('#guidelines-list input[data-list="guidelines-list"]').forEach((inp) => {
+    siteData.submissions.guidelines[+inp.dataset.i] = inp.value;
+  });
+  ['services-list', 'steps-list'].forEach((listId) => {
+    $$(`#${listId} [data-key]`).forEach((inp) => {
+      const arr = listId === 'services-list' ? siteData.services : siteData.submissions.steps;
+      arr[+inp.dataset.i][inp.dataset.key] = inp.value;
+    });
+  });
+}
+
+async function loadSite() {
+  const { data, sha } = await api('/site');
+  siteData = data; siteSha = sha;
+  renderSite();
+}
+
+$('#save-site').addEventListener('click', async () => {
+  try {
+    collectSiteForm();
+    const result = await api('/site', { method: 'PUT', body: JSON.stringify({ data: siteData, sha: siteSha }) });
+    siteData = result.data; siteSha = result.sha;
+    renderSite();
+    setStatus('Page content saved.');
+  } catch (e) { setStatus(e.message, true); }
+});
+
+loadSite().catch((e) => setStatus(e.message, true));
+
+// ---------------------------------------------------------- Authors / Notes
+
+const COLLECTIONS = {
+  authors: {
+    listEl: '#authors-list', editorEl: '#author-editor', newBtn: '#new-author',
+    fields: [['name','Name','text'],['genre','Genre or role','text'],['photo','Photo','photo'],['order','Order on the page','number']],
+    titleField: 'name', metaField: 'genre',
+  },
+  notes: {
+    api: 'posts', listEl: '#notes-list', editorEl: '#note-editor', newBtn: '#new-note',
+    fields: [['title','Title','text'],['date','Date','date'],['standfirst','Summary (shows on homepage card)','textarea']],
+    titleField: 'title', metaField: 'date',
+  },
+};
+
+async function loadCollection(key) {
+  const cfg = COLLECTIONS[key];
+  const items = await api('/' + (cfg.api || key));
+  const listEl = $(cfg.listEl);
+  listEl.innerHTML = items.map((it) => `
+    <div class="list-row">
+      <div><strong>${escapeHtml(it[cfg.titleField] || it.slug)}</strong>
+        <div class="meta">${escapeHtml(String(it[cfg.metaField] || ''))}</div></div>
+      <div>
+        <button class="btn small ghost" data-edit="${it.slug}">Edit</button>
+        <button class="btn small danger" data-delete="${it.slug}" data-sha="${it.sha}">Delete</button>
+      </div>
+    </div>`).join('') || '<p class="hint">None yet.</p>';
+
+  $$('[data-edit]', listEl).forEach((btn) => {
+    btn.onclick = () => openEditor(key, items.find((i) => i.slug === btn.dataset.edit));
+  });
+  $$('[data-delete]', listEl).forEach((btn) => {
+    btn.onclick = async () => {
+      if (!confirm('Delete this permanently?')) return;
+      try {
+        await api('/' + (cfg.api || key) + '/' + encodeURIComponent(btn.dataset.delete), {
+          method: 'DELETE', body: JSON.stringify({ sha: btn.dataset.sha }),
+        });
+        setStatus('Deleted.');
+        loadCollection(key);
+      } catch (e) { setStatus(e.message, true); }
+    };
+  });
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function openEditor(key, item) {
+  const cfg = COLLECTIONS[key];
+  const isNew = !item;
+  const data = item ? { ...item } : {};
+  const editorEl = $(cfg.editorEl);
+
+  editorEl.innerHTML = `<fieldset><legend>${isNew ? 'New' : 'Edit'} ${key === 'authors' ? 'author' : 'note'}</legend>
+    ${cfg.fields.map(([k, label, type]) => {
+      if (type === 'photo') {
+        return `<label>${label}</label>
+          ${data.photo ? `<img src="${data.photo}" style="max-width:120px;display:block;margin-bottom:.4rem;border-radius:4px">` : ''}
+          <input type="file" accept="image/*" data-key="photo-file">
+          <input type="hidden" data-key="photo" value="${data.photo || ''}">
+          <p class="hint">Leave empty to show the initial instead.</p>`;
+      }
+      const tag = type === 'textarea' ? 'textarea' : 'input';
+      const typeAttr = tag === 'input' ? ` type="${type}"` : '';
+      const val = data[k] ?? '';
+      return `<label>${label}</label><${tag} data-key="${k}"${typeAttr}>${tag === 'textarea' ? escapeHtml(String(val)) : ''}</${tag}>`;
+    }).join('')}
+    <label>${key === 'authors' ? 'Bio' : 'Post body'}</label>
+    <textarea data-key="body" style="min-height:9rem">${escapeHtml(data.body || '')}</textarea>
+    <div style="margin-top:1rem">
+      <button class="btn" id="editor-save">Save</button>
+      <button class="btn ghost" id="editor-cancel" type="button">Cancel</button>
+    </div>
+  </fieldset>`;
+
+  $$('[data-key]', editorEl).forEach((el) => {
+    if (el.type === 'text' || el.tagName === 'INPUT' && el.dataset.key !== 'photo' && el.dataset.key !== 'photo-file') {
+      if (el.dataset.key !== 'photo') el.value = data[el.dataset.key] ?? '';
+    }
+  });
+
+  const fileInput = $('[data-key="photo-file"]', editorEl);
+  if (fileInput) {
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const base64 = await fileToBase64(file);
+      try {
+        const res = await api('/uploads', { method: 'POST', body: JSON.stringify({ filename: file.name, base64 }) });
+        $('[data-key="photo"]', editorEl).value = res.path;
+        setStatus('Photo uploaded.');
+      } catch (e) { setStatus(e.message, true); }
+    });
+  }
+
+  $('#editor-cancel').onclick = () => { editorEl.innerHTML = ''; };
+  $('#editor-save').onclick = async () => {
+    const fields = {};
+    $$('[data-key]', editorEl).forEach((el) => {
+      if (el.dataset.key === 'photo-file') return;
+      fields[el.dataset.key] = el.value;
+    });
+    if (!isNew) fields.sha = item.sha;
+    try {
+      if (isNew) {
+        await api('/' + (cfg.api || key), { method: 'POST', body: JSON.stringify(fields) });
+      } else {
+        await api('/' + (cfg.api || key) + '/' + encodeURIComponent(item.slug), { method: 'PUT', body: JSON.stringify(fields) });
+      }
+      setStatus('Saved.');
+      editorEl.innerHTML = '';
+      loadCollection(key);
+    } catch (e) { setStatus(e.message, true); }
+  };
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+$('#new-author').addEventListener('click', () => openEditor('authors', null));
+$('#new-note').addEventListener('click', () => openEditor('notes', null));
+
+loadCollection('authors').catch((e) => setStatus(e.message, true));
+loadCollection('notes').catch((e) => setStatus(e.message, true));
+</script>
 </body>
 </html>

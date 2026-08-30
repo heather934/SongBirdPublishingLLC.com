@@ -1,7 +1,17 @@
 {
   "name": "songbirdpublishingllc-com",
   "compatibility_date": "2026-08-21",
+  "main": "worker/index.js",
   "assets": {
-    "directory": "./_site"
+    "directory": "./_site",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "underpressureadminlogin.cloudflareaccess.com",
+    "ACCESS_AUD": "ca52b77287afb6c6ccc688b99be21ae97cb28e7a35d2df34915b719dee01e19e",
+    "ADMIN_EMAIL": "heather@songbirdpublishingllc.com",
+    "GITHUB_REPO": "heather934/SongBirdPublishingLLC.com",
+    "GITHUB_BRANCH": "main"
   }
 }
