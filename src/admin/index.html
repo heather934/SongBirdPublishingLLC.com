@@ -292,7 +292,7 @@ loadSite().catch((e) => setStatus(e.message, true));
 const COLLECTIONS = {
   authors: {
     listEl: '#authors-list', editorEl: '#author-editor', newBtn: '#new-author',
-    fields: [['name','Name','text'],['genre','Genre or role','text'],['photo','Photo','photo'],['order','Order on the page','number']],
+    fields: [['name','Name','text'],['genre','Genre or role','text'],['photo','Photo','photo'],['book_cover','Book cover','photo'],['order','Order on the page','number']],
     titleField: 'name', metaField: 'genre',
   },
   notes: {
@@ -347,10 +347,10 @@ function openEditor(key, item) {
     ${cfg.fields.map(([k, label, type]) => {
       if (type === 'photo') {
         return `<label>${label}</label>
-          ${data.photo ? `<img src="${data.photo}" style="max-width:120px;display:block;margin-bottom:.4rem;border-radius:4px">` : ''}
-          <input type="file" accept="image/*" data-key="photo-file">
-          <input type="hidden" data-key="photo" value="${data.photo || ''}">
-          <p class="hint">Leave empty to show the initial instead.</p>`;
+          ${data[k] ? `<img src="${data[k]}" style="max-width:120px;display:block;margin-bottom:.4rem;border-radius:4px">` : ''}
+          <input type="file" accept="image/*" data-key="${k}-file">
+          <input type="hidden" data-key="${k}" value="${data[k] || ''}">
+          <p class="hint">Leave empty to hide it.</p>`;
       }
       const tag = type === 'textarea' ? 'textarea' : 'input';
       const typeAttr = tag === 'input' ? ` type="${type}"` : '';
@@ -366,30 +366,29 @@ function openEditor(key, item) {
   </fieldset>`;
 
   $$('[data-key]', editorEl).forEach((el) => {
-    if (el.type === 'text' || el.tagName === 'INPUT' && el.dataset.key !== 'photo' && el.dataset.key !== 'photo-file') {
-      if (el.dataset.key !== 'photo') el.value = data[el.dataset.key] ?? '';
-    }
+    if (el.dataset.key.endsWith('-file') || el.tagName === 'TEXTAREA') return;
+    el.value = data[el.dataset.key] ?? '';
   });
 
-  const fileInput = $('[data-key="photo-file"]', editorEl);
-  if (fileInput) {
+  $$('[data-key$="-file"]', editorEl).forEach((fileInput) => {
+    const targetKey = fileInput.dataset.key.replace(/-file$/, '');
     fileInput.addEventListener('change', async () => {
       const file = fileInput.files[0];
       if (!file) return;
       const base64 = await fileToBase64(file);
       try {
         const res = await api('/uploads', { method: 'POST', body: JSON.stringify({ filename: file.name, base64 }) });
-        $('[data-key="photo"]', editorEl).value = res.path;
-        setStatus('Photo uploaded.');
+        $(`[data-key="${targetKey}"]`, editorEl).value = res.path;
+        setStatus('Image uploaded.');
       } catch (e) { setStatus(e.message, true); }
     });
-  }
+  });
 
   $('#editor-cancel').onclick = () => { editorEl.innerHTML = ''; };
   $('#editor-save').onclick = async () => {
     const fields = {};
     $$('[data-key]', editorEl).forEach((el) => {
-      if (el.dataset.key === 'photo-file') return;
+      if (el.dataset.key.endsWith('-file')) return;
       fields[el.dataset.key] = el.value;
     });
     if (!isNew) fields.sha = item.sha;

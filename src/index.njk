@@ -70,6 +70,9 @@ layout: base.njk
         {% endif %}
         <h3>{{ a.data.name }}</h3>
         {% if a.data.genre %}<p class="role">{{ a.data.genre }}</p>{% endif %}
+        {% if a.data.book_cover %}
+          <img class="book-cover" src="{{ a.data.book_cover }}" alt="Cover of the book by {{ a.data.name }}">
+        {% endif %}
         <div class="author-bio">{{ a.templateContent | safe }}</div>
       </div>
       {% endfor %}

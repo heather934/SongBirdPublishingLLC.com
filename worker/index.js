@@ -261,7 +261,7 @@ async function uniqueSlug(env, dir, base) {
 const COLLECTIONS = {
   authors: {
     dir: "src/authors",
-    fields: ["name", "genre", "photo", "order"],
+    fields: ["name", "genre", "photo", "book_cover", "order"],
     titleField: "name",
     body: "body",
   },
