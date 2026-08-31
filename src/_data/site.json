@@ -1,27 +1,51 @@
 {
-  "title": "Song Bird Publishing",
+  "title": "We build the book",
   "meta_description": "Song Bird Publishing is a small independent press offering editing, design, formatting, distribution, launch support and author coaching.",
   "hero": {
-    "line": "A nest built of nails. A song anyway.",
-    "sub": "We're a small independent press for authors who'd rather own their book than rent it. Editing, design, distribution, and someone in your corner who has read the contract.",
+    "line": "Working with you, not against you.",
+    "sub": "We're a small independent press for authors who'd rather own their book than rent it. \n\nWe also offer editing and design, whether that's book or website, assistance. ",
     "primary_label": "Send us your manuscript",
     "secondary_label": "See what we do"
   },
   "about": {
     "eyebrow": "About",
-    "heading": "Small press, long memory.",
-    "lede": "Publishing has never been friendlier to new writers, and it has never been easier to get taken for a ride. We sit on the author's side of that line.",
-    "body": "Song Bird takes on a handful of books a year. That's a deliberate ceiling, not a stage we're growing out of. It means your editor knows your manuscript rather than your file number, and that the person who answers your email is the person doing the work.\n\nYou keep your rights. You keep your royalties. You approve the cover before anyone else sees it. We'll tell you when a chapter isn't working, and we'll tell you when a market isn't worth chasing — that's what you're paying us for.",
+    "heading": "Friends helping Friends",
+    "lede": "Publishing has never been friendlier to new writers, and it has never been easier to get taken for a ride. We are here to support you. ",
+    "body": "Song Bird is just starting to take flight. That means your editor knows your manuscript rather than your file number, and that the person who answers your email is the person doing the work.\n\nYou keep your rights. You keep your royalties. You approve the cover before anyone else sees it. We'll tell you when a chapter isn't working, and we'll tell you when a market isn't worth chasing — that's what you're paying us for.",
     "pull_quote": "The bird in our mark is nesting in nails. Most good books get built out of whatever hard thing was lying around."
   },
   "services_heading": "What we do",
   "services": [
-    { "label": "Editorial", "title": "Editing", "body": "Developmental notes, line editing, and copyediting. We start with what the book is trying to be, then argue with the sentences." },
-    { "label": "Visual", "title": "Cover & interior design", "body": "Covers built for the shelf and the thumbnail. Original type and art — no stock photo you'll spot on someone else's spine." },
-    { "label": "Production", "title": "Formatting", "body": "Print-ready interiors and clean reflowable ebooks. Correct front matter, working table of contents, no surprises at the printer." },
-    { "label": "Reach", "title": "Distribution", "body": "ISBNs, metadata, and placement across major retail and library channels — set up so bookstores can actually order you." },
-    { "label": "Launch", "title": "Marketing & launch", "body": "A dated plan: advance readers, review outreach, pricing, and the first ninety days. Written down, so you know what happens next." },
-    { "label": "Guidance", "title": "Author coaching", "body": "For the book that's stuck, or the career that is. Standing sessions on structure, habit, and the decisions nobody warned you about." }
+    {
+      "label": "Editorial",
+      "title": "Editing",
+      "body": "Developmental notes, line editing, and copyediting. We start with what the book is trying to be, then argue with the sentences."
+    },
+    {
+      "label": "Visual",
+      "title": "Cover & interior design",
+      "body": "Covers built for the shelf and the thumbnail. Original type and art — no stock photo you'll spot on someone else's spine."
+    },
+    {
+      "label": "Production",
+      "title": "Formatting",
+      "body": "Print-ready interiors and clean reflowable ebooks. Correct front matter, working table of contents, no surprises at the printer."
+    },
+    {
+      "label": "Reach",
+      "title": "Distribution",
+      "body": "ISBNs, metadata, and placement across major retail and library channels — set up so bookstores can actually order you."
+    },
+    {
+      "label": "Launch",
+      "title": "Marketing & launch",
+      "body": "A dated plan: advance readers, review outreach, pricing, and the first ninety days. Written down, so you know what happens next."
+    },
+    {
+      "label": "Guidance",
+      "title": "Author coaching",
+      "body": "For the book that's stuck, or the career that is. Standing sessions on structure, habit, and the decisions nobody warned you about."
+    }
   ],
   "authors_heading": "Who we publish",
   "submissions": {
@@ -37,21 +61,35 @@
       "Simultaneous submissions are fine — just tell us if someone else says yes."
     ],
     "steps": [
-      { "title": "You send it in", "body": "Use the form below or email the submissions address. You'll get a confirmation the same week." },
-      { "title": "We read it", "body": "Expect a real answer within six weeks. If we pass, we'll say briefly why." },
-      { "title": "We talk", "body": "A call about the book, the timeline, and the money — with the terms in writing before anything is signed." },
-      { "title": "We build the book", "body": "Edit, design, produce, launch. You approve every stage, and you keep your rights throughout." }
+      {
+        "title": "You send it in",
+        "body": "Use the form below or email the submissions address. You'll get a confirmation the same week."
+      },
+      {
+        "title": "We read it",
+        "body": "Expect a real answer within six weeks. If we pass, we'll say briefly why."
+      },
+      {
+        "title": "We talk",
+        "body": "A call about the book, the timeline, and the money — with the terms in writing before anything is signed."
+      },
+      {
+        "title": "We build the book",
+        "body": "Edit, design, produce, launch. You approve every stage, and you keep your rights throughout."
+      }
     ]
   },
-  "notes_heading": "Field notes",
+  "notes_heading": "",
   "notes_eyebrow": "Notes from the nest",
   "contact": {
     "heading": "Get in touch",
     "submissions_email": "submissions@songbirdpublishingllc.com",
-    "general_email": "hello@songbirdpublishingllc.com",
+    "general_email": "heather@songbirdpublishingllc.com",
     "response_time": "Queries within six weeks. Everything else, a few days.",
     "note": "Before you write: the submissions section above answers most of it. If your question is in there, sending it anyway just puts you further back in the queue — and we'd rather be reading your pages.",
     "form_endpoint": ""
   },
-  "legal_name": "Song Bird Publishing LLC"
+  "legal_name": "Song Bird Publishing LLC",
+  "label": "Guidance",
+  "body": "Edit, design, produce, launch. You approve every stage, and you keep your rights throughout."
 }
