@@ -135,6 +135,8 @@ header.nav{position:sticky;top:0;z-index:50;background:rgba(237,231,220,.86);bac
 .author h3{font-size:1.1rem;margin-bottom:.25rem}
 .author .role{font-family:"Space Mono",monospace;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--olive);margin-bottom:.8rem}
 .author p{font-size:.9rem;color:#4A5561;margin:0}
+.book-cover{display:block;height:130px;width:auto;margin:0 auto .9rem;border-radius:2px;
+  box-shadow:0 5px 16px rgba(20,38,63,.25)}
 .placeholder-note{margin-top:1.75rem;font-size:.85rem;color:var(--pewter);font-style:italic}
 
 /* --- submissions --- */
@@ -194,6 +196,7 @@ footer a{color:#9AA6B6}
 .rule-gap{margin:2rem 0 1.5rem}
 .contact-note{font-size:.93rem;color:#4A5561}
 .foot-name{margin:0 0 .3rem}
+.foot-credit{margin:.4rem 0 0;font-size:.78rem;color:#6E7A8C}
 .form-note{margin-top:1rem}
 .author-bio p{font-size:.9rem;color:#4A5561;margin:0 0 .6em}
 .author-bio p:last-child{margin-bottom:0}
